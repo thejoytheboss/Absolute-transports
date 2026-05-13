@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex Studio — Premium Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script async src="https://js.stripe.com/v3/buy-button.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #191919;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0ede8;
+    --muted: #888880;
+    --accent: #c9b99a;
+    --accent2: #e8ddd0;
+    --gold: #b8975a;
+    --gold-dim: rgba(184,151,90,0.12);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3rem;
+    height: 64px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--accent2);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: var(--accent);
+  }
+
+  /* PAGES */
+  .page { display: none; padding-top: 64px; min-height: 100vh; }
+  .page.active { display: block; }
+
+  /* ── HOME ── */
+  .hero {
+    min-height: calc(100vh - 64px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 3rem;
+    gap: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(184,151,90,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--accent2);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--muted);
+    max-width: 440px;
+    margin-bottom: 2.5rem;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 2rem;
+    background: var(--gold);
+    color: #0a0a0a;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 2rem;
+    background: transparent;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border-hover);
+    transition: border-color 0.2s, color 0.2s;
+    margin-left: 1rem;
+  }
+
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  .hero-right {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .stat-box {
+    background: var(--bg);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: var(--accent2);
+  }
+
+  .stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* HOME FEATURES */
+  .section {
+    padding: 6rem 3rem;
+  }
+
+  .section-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+  }
+
+  .section-sub {
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 3.5rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .feature-card {
+    background: var(--surface);
+    padding: 2rem;
+    transition: background 0.2s;
+  }
+
+  .feature-card:hover { background: var(--surface2); }
+
+  .feature-icon {
+    width: 36px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--accent2);
+    margin-bottom: 0.75rem;
+  }
+
+  .feature-desc {
+    font-size: 0.72rem;
+    line-height: 1.85;
+    color: var(--muted);
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 3rem;
+  }
+
+  /* ── SERVICES/PRODUCTS ── */
+  .products-header {
+    padding: 5rem 3rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: end;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin: 0 3rem;
+  }
+
+  .product-card {
+    background: var(--surface);
+    padding: 2.5rem;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .product-card:hover { background: var(--surface2); }
+
+  .product-card.featured {
+    background: var(--surface2);
+    border-top: 2px solid var(--gold);
+  }
+
+  .product-tag {
+    display: inline-block;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    padding: 0.3rem 0.7rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+  }
+
+  .product-price {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .product-price strong {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: 0;
+  }
+
+  .product-features {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+
+  .product-features li {
+    font-size: 0.7rem;
+    line-height: 2;
+    color: var(--muted);
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .product-features li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+  }
+
+  /* Stripe buy button wrapper */
+  .stripe-wrap {
+    margin-top: 1.5rem;
+  }
+
+  /* ── ABOUT ── */
+  .about-hero {
+    padding: 5rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .about-image-placeholder {
+    aspect-ratio: 3/4;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-image-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(184,151,90,0.03) 40px,
+      rgba(184,151,90,0.03) 41px
+    );
+  }
+
+  .about-image-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 300;
+    color: rgba(184,151,90,0.12);
+    letter-spacing: 0.05em;
+    position: relative;
+  }
+
+  .about-body p {
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin: 0 3rem;
+  }
+
+  .team-card {
+    background: var(--surface);
+    padding: 2rem;
+  }
+
+  .team-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    border: 1px solid rgba(184,151,90,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .team-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--accent2);
+    margin-bottom: 0.25rem;
+  }
+
+  .team-role {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .team-bio {
+    font-size: 0.7rem;
+    line-height: 1.85;
+    color: var(--muted);
+  }
+
+  /* ── FAQ ── */
+  .faq-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 5rem 3rem;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    cursor: pointer;
+    gap: 2rem;
+  }
+
+  .faq-q-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--accent2);
+    transition: color 0.2s;
+  }
+
+  .faq-question:hover .faq-q-text { color: var(--gold); }
+
+  .faq-toggle {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .faq-item.open .faq-toggle {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  .faq-item.open .faq-answer { max-height: 300px; }
+
+  .faq-answer p {
+    font-size: 0.75rem;
+    line-height: 1.9;
+    color: var(--muted);
+    padding-bottom: 1.5rem;
+  }
+
+  /* ── CONTACT ── */
+  .contact-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: calc(100vh - 64px);
+  }
+
+  .contact-left {
+    padding: 5rem 3rem;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+  }
+
+  .contact-right {
+    padding: 5rem 3rem;
+  }
+
+  .contact-info {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .ci-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .ci-value {
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .form-input,
+  .form-textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 300;
+    padding: 0.85rem 1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus { border-color: var(--gold); }
+
+  .form-textarea { min-height: 120px; }
+
+  /* FOOTER */
+  footer {
+    padding: 3rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-copy {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: rgba(184,151,90,0.4);
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 1.5rem; }
+    .hero, .products-header, .about-hero, .contact-wrap {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .hero { padding: 3rem 1.5rem; }
+    .hero-right { display: none; }
+    .features-grid, .products-grid, .team-grid { grid-template-columns: 1fr; }
+    .section, .contact-left, .contact-right { padding: 3rem 1.5rem; }
+    .products-header { padding: 3rem 1.5rem; }
+    .products-grid { margin: 0 1.5rem; }
+    .team-grid { margin: 0 1.5rem; }
+    .divider { margin: 0 1.5rem; }
+    footer { flex-direction: column; gap: 1rem; }
+    .nav-links { gap: 1.2rem; }
+    .nav-links a { font-size: 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" onclick="showPage('home')">Apex Studio</a>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" data-page="home">Home</a></li>
+    <li><a onclick="showPage('services')" data-page="services">Services</a></li>
+    <li><a onclick="showPage('about')" data-page="about">About</a></li>
+    <li><a onclick="showPage('faq')" data-page="faq">FAQ</a></li>
+    <li><a onclick="showPage('contact')" data-page="contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════ HOME ══════════════════ -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">Premium Digital Services</p>
+      <h1 class="hero-title">Where craft<br>meets <em>precision</em></h1>
+      <p class="hero-sub">We build experiences that outlast trends — bespoke strategy, design, and execution for clients who refuse to settle for ordinary.</p>
+      <div>
+        <button class="btn-primary" onclick="showPage('services')">Explore Services →</button>
+        <button class="btn-ghost" onclick="showPage('contact')">Get in Touch</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="stat-box">
+        <span class="stat-num">08+</span>
+        <span class="stat-label">Years of excellence</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">240</span>
+        <span class="stat-label">Projects delivered</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">98%</span>
+        <span class="stat-label">Client retention</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">12</span>
+        <span class="stat-label">Industry awards</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <p class="section-label">What we do</p>
+    <h2 class="section-title">Services built<br>for ambition</h2>
+    <p class="section-sub">Every engagement is a partnership. We bring deep craft, rigorous thinking, and quiet confidence to the work that defines your brand.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"></div>
+        <h3 class="feature-title">Brand Strategy</h3>
+        <p class="feature-desc">Positioning, identity systems, and narrative frameworks that give your brand a singular, unmistakable point of view in a crowded market.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"></div>
+        <h3 class="feature-title">Digital Design</h3>
+        <p class="feature-desc">Interfaces and experiences crafted with obsessive attention to detail — where every interaction is intentional and every pixel earns its place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"></div>
+        <h3 class="feature-title">Growth Advisory</h3>
+        <p class="feature-desc">Revenue strategy, funnel architecture, and market expansion plans grounded in data and executed with discipline.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <footer>
+    <span class="footer-copy">© 2026 Apex Studio. All rights reserved.</span>
+    <span class="footer-logo">Apex Studio</span>
+  </footer>
+</div>
+
+<!-- ══════════════════ SERVICES ══════════════════ -->
+<div class="page" id="page-services">
+  <div class="products-header">
+    <div>
+      <p class="section-label">Our Services</p>
+      <h2 class="section-title">Choose your engagement</h2>
+    </div>
+    <p class="section-sub" style="margin-bottom:0;">Transparent pricing. No retainer surprises. Every tier includes direct access to senior team members and a dedicated project lead.</p>
+  </div>
+
+  <div class="products-grid">
+
+    <!-- STARTER -->
+    <div class="product-card">
+      <span class="product-tag">Starter</span>
+      <h3 class="product-name">Essentials</h3>
+      <p class="product-price"><strong>$1,200</strong> / project</p>
+      <ul class="product-features">
+        <li>Brand audit & positioning brief</li>
+        <li>2-week turnaround</li>
+        <li>1 round of revisions</li>
+        <li>Deliverables PDF</li>
+        <li>Email support</li>
+      </ul>
+      <!-- STRIPE BUY BUTTON — replace buy-button-id and publishable-key with your own -->
+      <div class="stripe-wrap">
+        <stripe-buy-button
+          buy-button-id="buy_btn_REPLACE_ME_ESSENTIALS"
+          publishable-key="pk_live_REPLACE_WITH_YOUR_KEY">
+        </stripe-buy-button>
+      </div>
+    </div>
+
+    <!-- FEATURED -->
+    <div class="product-card featured">
+      <span class="product-tag">Most Popular</span>
+      <h3 class="product-name">Studio</h3>
+      <p class="product-price"><strong>$4,800</strong> / project</p>
+      <ul class="product-features">
+        <li>Full brand strategy & identity</li>
+        <li>UI/UX design system</li>
+        <li>4-week turnaround</li>
+        <li>3 rounds of revisions</li>
+        <li>Dedicated Slack channel</li>
+        <li>60-day post-launch support</li>
+      </ul>
+      <div class="stripe-wrap">
+        <stripe-buy-button
+          buy-button-id="buy_btn_REPLACE_ME_STUDIO"
+          publishable-key="pk_live_REPLACE_WITH_YOUR_KEY">
+        </stripe-buy-button>
+      </div>
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div class="product-card">
+      <span class="product-tag">Enterprise</span>
+      <h3 class="product-name">Partnership</h3>
+      <p class="product-price"><strong>$12,000</strong> / quarter</p>
+      <ul class="product-features">
+        <li>Full-service retainer</li>
+        <li>Ongoing strategy & design</li>
+        <li>Weekly syncs with senior team</li>
+        <li>Unlimited revisions</li>
+        <li>Priority turnaround</li>
+        <li>Quarterly growth reviews</li>
+      </ul>
+      <div class="stripe-wrap">
+        <stripe-buy-button
+          buy-button-id="buy_btn_REPLACE_ME_PARTNERSHIP"
+          publishable-key="pk_live_REPLACE_WITH_YOUR_KEY">
+        </stripe-buy-button>
+      </div>
+    </div>
+
+  </div>
+
+  <section class="section" style="padding-bottom: 3rem;">
+    <p style="font-size:0.7rem; color:var(--muted); max-width:600px; line-height:1.9;">
+      All services are invoiced through Stripe with secure card processing. Enterprise clients may request ACH or wire payment. Have questions before purchasing? <a onclick="showPage('contact')" style="color:var(--gold); cursor:pointer; text-decoration:underline;">Reach out first.</a>
+    </p>
+  </section>
+
+  <footer>
+    <span class="footer-copy">© 2026 Apex Studio. All rights reserved.</span>
+    <span class="footer-logo">Apex Studio</span>
+  </footer>
+</div>
+
+<!-- ══════════════════ ABOUT ══════════════════ -->
+<div class="page" id="page-about">
+  <div class="about-hero">
+    <div class="about-image-placeholder">
+      <span class="about-image-text">A.</span>
+    </div>
+    <div class="about-body">
+      <p class="section-label">Our Story</p>
+      <h2 class="section-title" style="margin-bottom:1.5rem;">Built by practitioners,<br>not theorists</h2>
+      <p>Apex Studio was founded in 2017 by a small group of designers and strategists who believed the best agencies were too slow and the fastest studios were too careless. We set out to prove a different model was possible.</p>
+      <p>Today we work with a curated roster of clients — from ambitious startups to established enterprises — who value craft as much as we do. Our team of 14 spans strategy, visual identity, interface design, and growth.</p>
+      <p>We take on fewer projects than we're offered, so we can give each one our full attention. That's not a positioning statement. It's how we sleep at night.</p>
+      <button class="btn-primary" onclick="showPage('contact')">Work With Us →</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <section class="section" style="padding-bottom: 2rem;">
+    <p class="section-label">The Team</p>
+    <h2 class="section-title" style="margin-bottom: 3rem;">The people behind the work</h2>
+  </section>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar">EL</div>
+      <p class="team-name">Elena Larsson</p>
+      <p class="team-role">Founder & Creative Director</p>
+      <p class="team-bio">Former creative lead at Pentagram, 14 years shaping brands for global clients across finance, hospitality, and technology.</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">MK</div>
+      <p class="team-name">Marcus Kite</p>
+      <p class="team-role">Head of Strategy</p>
+      <p class="team-bio">MBA from Kellogg, ex-McKinsey. Translates complex markets into clear positioning that teams can actually execute against.</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">SN</div>
+      <p class="team-name">Sona Nakamura</p>
+      <p class="team-role">Lead UX Designer</p>
+      <p class="team-bio">Obsessive about the gap between intention and interaction. Previously at Figma and Linear, now channeling that into client work.</p>
+    </div>
+  </div>
+
+  <div style="padding: 4rem 0 0;"></div>
+
+  <footer>
+    <span class="footer-copy">© 2026 Apex Studio. All rights reserved.</span>
+    <span class="footer-logo">Apex Studio</span>
+  </footer>
+</div>
+
+<!-- ══════════════════ FAQ ══════════════════ -->
+<div class="page" id="page-faq">
+  <div class="faq-wrap">
+    <p class="section-label">FAQ</p>
+    <h2 class="section-title" style="margin-bottom: 3rem;">Questions, answered</h2>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">How does the purchase process work?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Select your service tier on the Services page and complete checkout via Stripe. You'll receive a confirmation email with a brief onboarding questionnaire and instructions for scheduling your kickoff call — typically within 48 hours of purchase.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Can I upgrade my package after purchase?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Yes. If you find mid-project that you need more scope, we'll simply credit what you've paid toward the higher tier. Downgrades are handled case-by-case depending on work already completed — reach out and we'll find a fair resolution.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">What's your refund policy?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>If we haven't started work yet, we offer a full refund within 7 days of purchase, no questions asked. Once the project is underway, refunds are prorated based on work completed. We've never had a client request one — we'd rather fix any issues than part ways.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Do you work with international clients?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Absolutely. Roughly 40% of our clients are outside the US. We work asynchronously across time zones and schedule calls to overlap with your business hours. Stripe handles multi-currency billing seamlessly.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">How long does a typical project take?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Essentials engagements are typically 2 weeks. Studio projects run 4–6 weeks depending on feedback cycles. Enterprise partnerships are ongoing by design. All timelines are confirmed at kickoff based on your specific scope.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Can I speak to someone before purchasing?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Of course. Use the contact form and we'll schedule a 20-minute discovery call — no sales pressure, just a conversation to see if we're a good fit. We turn down projects that aren't right for us, and we respect when clients do the same.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-copy">© 2026 Apex Studio. All rights reserved.</span>
+    <span class="footer-logo">Apex Studio</span>
+  </footer>
+</div>
+
+<!-- ══════════════════ CONTACT ══════════════════ -->
+<div class="page" id="page-contact">
+  <div class="contact-wrap">
+    <div class="contact-left">
+      <p class="section-label">Contact</p>
+      <h2 class="section-title">Let's talk</h2>
+      <p style="font-size:0.75rem; line-height:1.9; color:var(--muted); margin-top:1rem; max-width:380px;">
+        Whether you're ready to start or just exploring, we respond to every message within one business day.
+      </p>
+      <div class="contact-info">
+        <div class="contact-info-item">
+          <span class="ci-label">Email</span>
+          <span class="ci-value">hello@apexstudio.co</span>
+        </div>
+        <div class="contact-info-item">
+          <span class="ci-label">Response time</span>
+          <span class="ci-value">Within 24 hours, Mon–Fri</span>
+        </div>
+        <div class="contact-info-item">
+          <span class="ci-label">Calls</span>
+          <span class="ci-value">By appointment only</span>
+        </div>
+        <div class="contact-info-item">
+          <span class="ci-label">Based in</span>
+          <span class="ci-value">New York · Remote worldwide</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-right">
+      <form onsubmit="handleSubmit(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input class="form-input" type="text" placeholder="Elena" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input class="form-input" type="text" placeholder="Larsson" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" placeholder="hello@yourcompany.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Service Interest</label>
+          <select class="form-input" style="cursor:pointer; appearance:none;">
+            <option value="">— Select a service —</option>
+            <option>Essentials ($1,200)</option>
+            <option>Studio ($4,800)</option>
+            <option>Partnership ($12,000 / quarter)</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" placeholder="Tell us about your project, timeline, and any context that would help us prepare for the conversation…" required></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">Send Message →</button>
+      </form>
+      <div id="form-success" style="display:none; padding: 2rem; border: 1px solid rgba(184,151,90,0.3); margin-top:1.5rem; text-align:center;">
+        <p style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--accent2); margin-bottom:0.5rem;">Message received.</p>
+        <p style="font-size:0.72rem; color:var(--muted);">We'll be in touch within one business day.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-copy">© 2026 Apex Studio. All rights reserved.</span>
+    <span class="footer-logo">Apex Studio</span>
+  </footer>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const link = document.querySelector('[data-page="' + id + '"]');
+  if (link) link.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  e.target.style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+}
+
+// Set initial active nav
+document.querySelector('[data-page="home"]').classList.add('active');
+</script>
+</body>
+</html>
