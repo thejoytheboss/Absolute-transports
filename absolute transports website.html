@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absolute Transports — Logistics & Dispatching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script async src="https://js.stripe.com/v3/buy-button.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #191919;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0ede8;
+    --muted: #888880;
+    --accent: #c9b99a;
+    --accent2: #e8ddd0;
+    --gold: #b8975a;
+    --gold-dim: rgba(184,151,90,0.12);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3rem;
+    height: 64px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--accent2);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: var(--accent);
+  }
+
+  /* PAGES */
+  .page { display: none; padding-top: 64px; min-height: 100vh; }
+  .page.active { display: block; }
+
+  /* ── HOME ── */
+  .hero {
+    min-height: calc(100vh - 64px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 3rem;
+    gap: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(184,151,90,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--accent2);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--muted);
+    max-width: 440px;
+    margin-bottom: 2.5rem;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 2rem;
+    background: var(--gold);
+    color: #0a0a0a;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 2rem;
+    background: transparent;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border-hover);
+    transition: border-color 0.2s, color 0.2s;
+    margin-left: 1rem;
+  }
+
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  .hero-right {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .stat-box {
+    background: var(--bg);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: var(--accent2);
+  }
+
+  .stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* HOME FEATURES */
+  .section {
+    padding: 6rem 3rem;
+  }
+
+  .section-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+  }
+
+  .section-sub {
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 3.5rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .feature-card {
+    background: var(--surface);
+    padding: 2rem;
+    transition: background 0.2s;
+  }
+
+  .feature-card:hover { background: var(--surface2); }
+
+  .feature-icon {
+    width: 36px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--accent2);
+    margin-bottom: 0.75rem;
+  }
+
+  .feature-desc {
+    font-size: 0.72rem;
+    line-height: 1.85;
+    color: var(--muted);
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 3rem;
+  }
+
+  /* ── SERVICES/PRODUCTS ── */
+  .products-header {
+    padding: 5rem 3rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: end;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin: 0 3rem;
+  }
+
+  .product-card {
+    background: var(--surface);
+    padding: 2.5rem;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .product-card:hover { background: var(--surface2); }
+
+  .product-card.featured {
+    background: var(--surface2);
+    border-top: 2px solid var(--gold);
+  }
+
+  .product-tag {
+    display: inline-block;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    padding: 0.3rem 0.7rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+  }
+
+  .product-price {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .product-price strong {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: 0;
+  }
+
+  .product-features {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+
+  .product-features li {
+    font-size: 0.7rem;
+    line-height: 2;
+    color: var(--muted);
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .product-features li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+  }
+
+  /* Stripe buy button wrapper */
+  .stripe-wrap {
+    margin-top: 1.5rem;
+  }
+
+  /* ── ABOUT ── */
+  .about-hero {
+    padding: 5rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .about-image-placeholder {
+    aspect-ratio: 3/4;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-image-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(184,151,90,0.03) 40px,
+      rgba(184,151,90,0.03) 41px
+    );
+  }
+
+  .about-image-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 300;
+    color: rgba(184,151,90,0.12);
+    letter-spacing: 0.05em;
+    position: relative;
+  }
+
+  .about-body p {
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin: 0 3rem;
+  }
+
+  .team-card {
+    background: var(--surface);
+    padding: 2rem;
+  }
+
+  .team-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    border: 1px solid rgba(184,151,90,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .team-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--accent2);
+    margin-bottom: 0.25rem;
+  }
+
+  .team-role {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .team-bio {
+    font-size: 0.7rem;
+    line-height: 1.85;
+    color: var(--muted);
+  }
+
+  /* ── FAQ ── */
+  .faq-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 5rem 3rem;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    cursor: pointer;
+    gap: 2rem;
+  }
+
+  .faq-q-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--accent2);
+    transition: color 0.2s;
+  }
+
+  .faq-question:hover .faq-q-text { color: var(--gold); }
+
+  .faq-toggle {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .faq-item.open .faq-toggle {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  .faq-item.open .faq-answer { max-height: 300px; }
+
+  .faq-answer p {
+    font-size: 0.75rem;
+    line-height: 1.9;
+    color: var(--muted);
+    padding-bottom: 1.5rem;
+  }
+
+  /* ── CONTACT ── */
+  .contact-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: calc(100vh - 64px);
+  }
+
+  .contact-left {
+    padding: 5rem 3rem;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+  }
+
+  .contact-right {
+    padding: 5rem 3rem;
+  }
+
+  .contact-info {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .ci-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .ci-value {
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .form-input,
+  .form-textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 300;
+    padding: 0.85rem 1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus { border-color: var(--gold); }
+
+  .form-textarea { min-height: 120px; }
+
+  /* FOOTER */
+  footer {
+    padding: 3rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-copy {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: rgba(184,151,90,0.4);
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 1.5rem; }
+    .hero, .products-header, .about-hero, .contact-wrap {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .hero { padding: 3rem 1.5rem; }
+    .hero-right { display: none; }
+    .features-grid, .products-grid, .team-grid { grid-template-columns: 1fr; }
+    .section, .contact-left, .contact-right { padding: 3rem 1.5rem; }
+    .products-header { padding: 3rem 1.5rem; }
+    .products-grid { margin: 0 1.5rem; }
+    .team-grid { margin: 0 1.5rem; }
+    .divider { margin: 0 1.5rem; }
+    footer { flex-direction: column; gap: 1rem; }
+    .nav-links { gap: 1.2rem; }
+    .nav-links a { font-size: 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" onclick="showPage('home')">Absolute Transports</a>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" data-page="home">Home</a></li>
+    <li><a onclick="showPage('services')" data-page="services">Services</a></li>
+    <li><a onclick="showPage('about')" data-page="about">About</a></li>
+    <li><a onclick="showPage('faq')" data-page="faq">FAQ</a></li>
+    <li><a onclick="showPage('contact')" data-page="contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════ HOME ══════════════════ -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">Reliable · Professional · On Time</p>
+      <h1 class="hero-title">Moving freight<br>with <em>precision</em></h1>
+      <p class="hero-sub">Absolute Transports delivers full-service logistics and dispatching — equipped with a 26 ft box truck, lift gate, and pallet jack to handle your load from pickup to drop-off.</p>
+      <div>
+        <button class="btn-primary" onclick="showPage('services')">Our Services →</button>
+        <button class="btn-ghost" onclick="showPage('contact')">Get a Quote</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="stat-box">
+        <span class="stat-num">26 ft</span>
+        <span class="stat-label">Box Truck Capacity</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">Lift</span>
+        <span class="stat-label">Gate Equipped</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">Pallet</span>
+        <span class="stat-label">Jack On Board</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">Dispatch</span>
+        <span class="stat-label">Industry Standard</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <p class="section-label">What we do</p>
+    <h2 class="section-title">Logistics built<br>for the load</h2>
+    <p class="section-sub">Whether it's a single pallet or a full truck, we show up equipped and ready. Absolute Transports handles the heavy lifting — literally.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"></div>
+        <h3 class="feature-title">Call Us First</h3>
+        <p class="feature-desc">Reach out and you'll be connected with our team. Leave a voicemail or email and we'll get back to you promptly to discuss your shipment needs and schedule a pickup.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"></div>
+        <h3 class="feature-title">Freight & Delivery</h3>
+        <p class="feature-desc">Our 26 ft box truck with lift gate handles commercial and residential freight of all sizes. No dock? No problem — the lift gate and pallet jack get your cargo where it needs to go.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"></div>
+        <h3 class="feature-title">Dispatching</h3>
+        <p class="feature-desc">Our dispatchers coordinate routes, manage load planning, and keep your delivery on schedule — so you spend less time managing logistics and more time running your business.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <footer>
+    <span class="footer-copy">© 2026 Absolute Transports LLc. All rights reserved.</span>
+    <span class="footer-logo">Absolute transports</span>
+  </footer>
+</div>
+
+<!-- ══════════════════ SERVICES ══════════════════ -->
+<div class="page" id="page-services">
+  <div class="products-header">
+    <div>
+      <p class="section-label">Our Services</p>
+      <h2 class="section-title">Choose your service</h2>
+    </div>
+    <p class="section-sub" style="margin-bottom:0;">Straightforward pricing for straightforward work. Every service includes our 26 ft box truck, lift gate access, and pallet jack — fully equipped from the start.</p>
+  </div>
+
+  <div class="products-grid">
+
+    <!-- LOCAL -->
+    <div class="product-card">
+      <span class="product-tag">Local</span>
+      <h3 class="product-name">Local Delivery</h3>
+      <p class="product-price"><strong>$250</strong> / haul</p>
+      <ul class="product-features">
+        <li>Within 50-mile radius</li>
+        <li>26 ft box truck</li>
+        <li>Lift gate included</li>
+        <li>Pallet jack on board</li>
+        <li>Same or next day scheduling</li>
+      </ul>
+      <div class="stripe-wrap">
+        <stripe-buy-button
+          buy-button-id="buy_btn_REPLACE_ME_ESSENTIALS"
+          publishable-key="pk_live_REPLACE_WITH_YOUR_KEY">
+        </stripe-buy-button>
+      </div>
+    </div>
+
+    <!-- FEATURED -->
+    <div class="product-card featured">
+      <span class="product-tag">Most Popular</span>
+      <h3 class="product-name">Regional Freight</h3>
+      <p class="product-price"><strong>$600</strong> / haul</p>
+      <ul class="product-features">
+        <li>50–300 mile range</li>
+        <li>26 ft box truck</li>
+        <li>Lift gate & pallet jack</li>
+        <li>Load securing included</li>
+        <li>Real-time dispatch updates</li>
+        <li>Commercial & residential</li>
+      </ul>
+      <div class="stripe-wrap">
+        <stripe-buy-button
+          buy-button-id="buy_btn_REPLACE_ME_STUDIO"
+          publishable-key="pk_live_REPLACE_WITH_YOUR_KEY">
+        </stripe-buy-button>
+      </div>
+    </div>
+
+    <!-- CONTRACT -->
+    <div class="product-card">
+      <span class="product-tag">Contract</span>
+      <h3 class="product-name">Dedicated Dispatch</h3>
+      <p class="product-price"><strong>Custom</strong> / quote</p>
+      <ul class="product-features">
+        <li>Recurring freight contracts</li>
+        <li>Priority scheduling</li>
+        <li>Full dispatching support</li>
+        <li>Route optimization</li>
+        <li>Dedicated point of contact</li>
+        <li>Flexible billing terms</li>
+      </ul>
+      <div class="stripe-wrap">
+        <stripe-buy-button
+          buy-button-id="buy_btn_REPLACE_ME_PARTNERSHIP"
+          publishable-key="pk_live_REPLACE_WITH_YOUR_KEY">
+        </stripe-buy-button>
+      </div>
+    </div>
+
+  </div>
+
+  <section class="section" style="padding-bottom: 3rem;">
+    <p style="font-size:0.7rem; color:var(--muted); max-width:600px; line-height:1.9;">
+      All services are invoiced through Stripe with secure card processing. Contract clients may request custom billing terms. Not sure which service fits your freight? <a onclick="showPage('contact')" style="color:var(--gold); cursor:pointer; text-decoration:underline;">Reach out first.</a>
+    </p>
+  </section>
+
+  <footer>
+    <span class="footer-copy">© 2026 Absolute Transports. All rights reserved.</span>
+    <span class="footer-logo">Absolute Transports</span>
+  </footer>
+</div>
+
+<!-- ══════════════════ ABOUT ══════════════════ -->
+<div class="page" id="page-about">
+  <div class="about-hero">
+    <div class="about-image-placeholder">
+      <span class="about-image-text">AT.</span>
+    </div>
+    <div class="about-body">
+      <p class="section-label">Our Story</p>
+      <h2 class="section-title" style="margin-bottom:1.5rem;">Built on the road,<br>not behind a desk</h2>
+      <p>Absolute Transports was founded on a simple belief: freight moves better when the people handling it actually care. We're a small, owner-operated logistics company with the equipment and expertise to get your load where it needs to be — on time, every time.</p>
+      <p>Our fleet is purpose-built for the job. A 26 ft box truck equipped with a lift gate and pallet jack means we're ready for commercial docks, residential deliveries, warehouses, and everything in between — no extra equipment fees, no surprises.</p>
+      <p>We keep our operation lean on purpose. That means every client gets our full attention, every shipment is handled with care, and you always know who's driving your freight.</p>
+      <button class="btn-primary" onclick="showPage('contact')">Request a Quote →</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <section class="section" style="padding-bottom: 2rem;">
+    <p class="section-label">The Team</p>
+    <h2 class="section-title" style="margin-bottom: 3rem;">The people moving your freight</h2>
+  </section>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar">AT</div>
+      <p class="team-name">Owner / Operator</p>
+      <p class="team-role">Founder & Driver</p>
+      <p class="team-bio">Behind the wheel and behind the business. Handles freight personally to ensure every load is treated with the same care as the first.</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">DS</div>
+      <p class="team-name">Dispatch & Logistics</p>
+      <p class="team-role">Route Coordinator</p>
+      <p class="team-bio">Manages scheduling, load planning, and client communication — keeping every job on track from booking to delivery confirmation.</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">CS</div>
+      <p class="team-name">Client Support</p>
+      <p class="team-role">Freight Coordinator</p>
+      <p class="team-bio">First point of contact for quotes and questions. Makes sure every client has the information they need before the truck ever rolls out.</p>
+    </div>
+  </div>
+
+  <div style="padding: 4rem 0 0;"></div>
+
+  <footer>
+    <span class="footer-copy">© 2026 Absolute Transports. All rights reserved.</span>
+    <span class="footer-logo">Absolute Transports</span>
+  </footer>
+</div>
+
+<!-- ══════════════════ FAQ ══════════════════ -->
+<div class="page" id="page-faq">
+  <div class="faq-wrap">
+    <p class="section-label">FAQ</p>
+    <h2 class="section-title" style="margin-bottom: 3rem;">Questions, answered</h2>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">How do I book a delivery?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Fill out the contact form or call us directly. Give us the pickup and drop-off location, a description of your freight, and your preferred date. We'll confirm availability and send you a quote within one business day.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">What kind of freight can you handle?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>We handle a wide range of freight including palletized goods, furniture, appliances, equipment, and general cargo. Our 26 ft box truck fits loads up to about 10,000 lbs and 1,500 cubic ft. Not sure if your load qualifies? Just ask — we'll let you know.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Do you have a lift gate?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Yes. Our truck is equipped with a lift gate and a pallet jack, so we can load and unload at locations without a loading dock — including driveways, parking lots, and ground-level storefronts. No extra fee for lift gate use.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">How far do you travel?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>We cover local deliveries within 50 miles and regional hauls up to 300+ miles. For longer distances or dedicated freight contracts, reach out and we'll discuss routing and pricing specific to your needs.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">How much does a delivery cost?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Pricing starts at $250 for local hauls and $600 for regional freight. Contract and recurring delivery rates are custom-quoted based on volume and route. All pricing is transparent — no hidden fuel surcharges or surprise fees.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Can I talk to someone before booking?</span>
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Absolutely. Use the contact form and we'll get back to you within one business day. For urgent freight needs, calling is the fastest way to reach us. We'd rather answer your questions upfront than have any surprises on pickup day.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-copy">© 2026 Absolute Transports. All rights reserved.</span>
+    <span class="footer-logo">Absolute Transports</span>
+  </footer>
+</div>
+
+<!-- ══════════════════ CONTACT ══════════════════ -->
+<div class="page" id="page-contact">
+  <div class="contact-wrap">
+    <div class="contact-left">
+      <p class="section-label">Contact</p>
+      <h2 class="section-title">Let's move your freight</h2>
+      <p style="font-size:0.75rem; line-height:1.9; color:var(--muted); margin-top:1rem; max-width:380px;">
+        Ready to book or just need a quote? We respond to every message within one business day — usually faster.
+      </p>
+      <div class="contact-info">
+        <div class="contact-info-item">
+          <span class="ci-label">Email</span>
+          <span class="ci-value">hello@absolutetransports.com</span>
+        </div>
+        <div class="contact-info-item">
+          <span class="ci-label">Response time</span>
+          <span class="ci-value">Within 24 hours, Mon–Sat</span>
+        </div>
+        <div class="contact-info-item">
+          <span class="ci-label">Calls</span>
+          <span class="ci-value">Leave a voicemail — we'll call back</span>
+        </div>
+        <div class="contact-info-item">
+          <span class="ci-label">Service Area</span>
+          <span class="ci-value">Local, Regional & Contract Hauls</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-right">
+      <form onsubmit="handleSubmit(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input class="form-input" type="text" placeholder="Elena" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input class="form-input" type="text" placeholder="Larsson" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" placeholder="hello@yourcompany.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Service Interest</label>
+          <select class="form-input" style="cursor:pointer; appearance:none;">
+            <option value="">— Select a service —</option>
+            <option>Local Delivery ($250)</option>
+            <option>Regional Freight ($600)</option>
+            <option>Dedicated Dispatch (Custom Quote)</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" placeholder="Tell us about your freight — pickup and drop-off location, what you're moving, approximate weight, and your preferred date…" required></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">Send Message →</button>
+      </form>
+      <div id="form-success" style="display:none; padding: 2rem; border: 1px solid rgba(184,151,90,0.3); margin-top:1.5rem; text-align:center;">
+        <p style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--accent2); margin-bottom:0.5rem;">Quote request received.</p>
+        <p style="font-size:0.72rem; color:var(--muted);">We'll be in touch within one business day.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-copy">© 2026 Absolute Transports. All rights reserved.</span>
+    <span class="footer-logo">Absolute Transports</span>
+  </footer>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const link = document.querySelector('[data-page="' + id + '"]');
+  if (link) link.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  e.target.style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+}
+
+// Set initial active nav
+document.querySelector('[data-page="home"]').classList.add('active');
+</script>
+</body>
+</html>
